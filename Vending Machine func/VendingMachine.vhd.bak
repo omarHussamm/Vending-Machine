@@ -1,0 +1,152 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+ENTITY vendingMachine IS
+	PORT (
+		clk, infra, btn, echo : IN std_logic;
+		servo_clk, ultra_clk, cinfsig_led, ultdist_led : OUT std_logic
+	);
+END vendingMachine;
+
+ARCHITECTURE vending_machine_arch OF vendingMachine IS
+	SIGNAL ultdist, cinfsig : std_logic;
+	SIGNAL yserv : std_logic:='1';
+	SIGNAL echo_time : INTEGER;
+BEGIN
+	PROCESS (clk)
+	VARIABLE c1, c2, cinf, cservo : INTEGER := 0;
+	VARIABLE y : std_logic := '1';
+	VARIABLE cserv, c1serv : INTEGER := 0;
+	VARIABLE xserv : std_logic := '0';
+	BEGIN
+		IF rising_edge (clk) THEN
+
+			IF (c1 = 0) THEN
+				ultra_clk <= '1';
+			ELSIF (c1 = 500) THEN--100us
+				ultra_clk <= '0';
+				y := '1';
+			ELSIF (c1 = 5000000) THEN-- 100 ms
+				c1 := 0;
+				ultra_clk <= '1';
+			END IF;
+			c1 := c1 + 1;
+
+			IF (echo = '1') THEN
+				c2 := c2 + 1;
+			ELSIF (echo = '0' AND y = '1') THEN-- I change the y to not get echo_time =0;
+				echo_time <= c2;
+				c2 := 0;
+				y := '0';
+			END IF;
+			IF (echo_time < 10000) THEN--20 cm
+				ultdist <= '1';
+				ultdist_led <= '1';
+			ELSE
+				ultdist <= '0';
+				ultdist_led <= '0';
+			END IF;
+			IF (infra = '0' OR cinfsig = '1') THEN
+				IF (cinf < 100000000) THEN --10secs
+					cinf := cinf + 1;
+					cinfsig <= '1';
+					cinfsig_led <= '1';
+				ELSE
+					cinf := 0;
+					cinfsig <= '0';
+					cinfsig_led <= '0';
+				END IF;
+			END IF;
+--			IF (btn = '0' AND cinfsig = '1' AND ultdist = '1') THEN
+			IF (cinfsig = '1' AND ultdist = '1') THEN
+				IF (cservo < 10000000) THEN
+					IF (yserv = '0') THEN
+						IF (c1serv = 10000000) THEN-- 0.8s
+							yserv <= '1';
+							xserv := '0';
+							c1serv := 0;
+						ELSE
+							c1serv := c1serv + 1;
+						END IF;
+					END IF;
+					IF (cserv = 210000) THEN -- 20 ms
+						cserv := 0;
+					ELSE
+						cserv := cserv + 1;
+					END IF;
+					IF (yserv = '1') THEN
+						IF (cserv < 10000) THEN --1ms
+							servo_clk <= '1';
+							xserv := '1';
+						ELSE
+							servo_clk <= '0';
+						END IF;
+						END IF;
+					IF (xserv = '1' AND cserv = 210000) THEN --20ms
+			yserv <= '0';
+		END IF;
+					
+				ELSIF (cservo > 9999999 AND cservo < 20000000) THEN
+					IF (yserv = '0') THEN
+						IF (c1serv = 10000000) THEN-- 0.8s
+							yserv <= '1';
+							xserv := '0';
+							c1serv := 0;
+						ELSE
+							c1serv := c1serv + 1;
+						END IF;
+					END IF;
+					IF (cserv = 215000) THEN -- 20 ms
+						cserv := 0;
+					ELSE
+						cserv := cserv + 1;
+					END IF;
+					IF (yserv = '1') THEN
+					IF (cserv < 15000) THEN --1.5ms
+						servo_clk <= '1';
+						xserv := '1';
+					ELSE
+						servo_clk <= '0';
+					END IF;
+					END IF;
+				IF (xserv = '1' AND cserv = 215000) THEN --20ms
+			yserv <= '0';
+		END IF;
+		
+			ELSE
+				IF (yserv = '0') THEN
+					IF (c1serv = 10000000) THEN-- 0.8s
+						yserv <= '1';
+						xserv := '0';
+						c1serv := 0;
+					ELSE
+						c1serv := c1serv + 1;
+					END IF;
+				END IF;
+				IF (cserv = 220000) THEN -- 20 ms
+					cserv := 0;
+				ELSE
+					cserv := cserv + 1;
+				END IF;
+				IF (yserv = '1') THEN
+				IF (cserv < 20000) THEN -- 2ms
+					servo_clk <= '1';
+					xserv := '1';
+				ELSE
+					servo_clk <= '0';
+				END IF;
+				IF (xserv = '1' AND cserv = 220000) THEN --20ms
+			yserv <= '0';
+		END IF;
+				END IF;
+		
+		END IF;
+		IF (cservo = 30000000) THEN
+			cservo := 0;
+		ELSE
+			cservo := cservo + 1;
+		END IF;
+	END IF;
+	END IF;
+END PROCESS;
+END vending_machine_arch;

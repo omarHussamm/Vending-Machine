@@ -1,0 +1,46 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+ENTITY UltraSonic IS
+	PORT (
+		clk, infra, btn, echo : IN std_logic;
+		servo_clk, ultra_clk, cinfsig_led, ultdist_led : OUT std_logic
+	);
+END UltraSonic;
+
+ARCHITECTURE UltraSonic_arch OF UltraSonic IS
+	SIGNAL ultdist, cinfsig : std_logic;
+	SIGNAL yserv : std_logic:='1';
+	SIGNAL echo_time : INTEGER;
+	SIGNAL c1, c2, cinf, cservo : INTEGER := 0;
+	SIGNAL y : std_logic := '1';
+	SIGNAL cserv, c1serv : INTEGER := 0;
+	SIGNAL xserv : std_logic := '0';
+BEGIN
+
+			IF (c1 = 0) THEN
+				ultra_clk <= '1';
+			ELSIF (c1 = 500) THEN--100us
+				ultra_clk <= '0';
+				y <= '1';
+			ELSIF (c1 = 5000000) THEN-- 100 ms
+				c1 <= 0;
+				ultra_clk <= '1';
+			END IF;
+			c1 <= c1 + 1;
+
+			IF (echo = '1') THEN
+				c2 <= c2 + 1;
+			ELSIF (echo = '0' AND y = '1') THEN-- I change the y to not get echo_time =0;
+				echo_time <= c2;
+				c2 <= 0;
+				y <= '0';
+			END IF;
+			IF (echo_time < 10000) THEN--20 cm
+				ultdist <= '1';
+				ultdist_led <= '1';
+			ELSE
+				ultdist <= '0';
+				ultdist_led <= '0';
+			END IF;
+END UltraSonic_arch;

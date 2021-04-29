@@ -1,0 +1,45 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "servo_clk",
+					"strict" : false
+				},
+				{
+					"name" : "servo_clk2",
+					"strict" : false
+				},
+				{
+					"name" : "ultra_clk",
+					"strict" : false
+				},
+				{
+					"name" : "cinfsig_led",
+					"strict" : false
+				},
+				{
+					"name" : "ultdist_led",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "infra",
+					"strict" : false
+				},
+				{
+					"name" : "btn",
+					"strict" : false
+				},
+				{
+					"name" : "echo",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
